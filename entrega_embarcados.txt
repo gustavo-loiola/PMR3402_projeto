@@ -1,0 +1,157 @@
+/*************************** LEDS ***************************/
+                                                          /**/ 
+#define SETA_ESQUERDA_POSITIVO 22                         /**/
+#define SETA_ESQUERDA_NEGATIVO 23                         /**/
+                                                          /**/
+#define SETA_DIREITA_POSITIVO 52                          /**/
+#define SETA_DIREITA_NEGATIVO 53                          /**/
+                                                          /**/
+#define FAROL_UM_POSITIVO     30                          /**/
+#define FAROL_UM_NEGATIVO     31                          /**/
+                                                          /**/
+#define FAROL_DOIS_POSITIVO   44                          /**/
+#define FAROL_DOIS_NEGATIVO   45                          /**/
+                                                          /**/
+#define FREIO_UM_POSITIVO 6                               /**/
+#define FREIO_UM_NEGATIVO 5                               /**/
+                                                          /**/
+#define FREIO_DOIS_POSITIVO A0                            /**/
+#define FREIO_DOIS_NEGATIVO A1                            /**/
+                                                          /**/
+/************************************************************/
+
+#define IN1 8
+#define IN2 9
+#define IN3 10
+#define IN4 11
+
+void setup() {
+  // Setas  
+  pinMode(SETA_ESQUERDA_POSITIVO, OUTPUT);
+  pinMode(SETA_ESQUERDA_NEGATIVO, OUTPUT);
+  pinMode(SETA_DIREITA_POSITIVO, OUTPUT);
+  pinMode(SETA_DIREITA_NEGATIVO, OUTPUT);
+  digitalWrite(SETA_ESQUERDA_NEGATIVO, LOW);
+  digitalWrite(SETA_DIREITA_NEGATIVO, LOW);
+
+  // Farol
+  pinMode(FAROL_UM_POSITIVO, OUTPUT);
+  pinMode(FAROL_DOIS_POSITIVO, OUTPUT);
+  pinMode(FAROL_UM_NEGATIVO, OUTPUT);
+  pinMode(FAROL_DOIS_NEGATIVO, OUTPUT);
+  digitalWrite(FAROL_UM_NEGATIVO, LOW);
+  digitalWrite(FAROL_DOIS_NEGATIVO, LOW);
+  digitalWrite(FAROL_UM_POSITIVO, HIGH);
+  digitalWrite(FAROL_DOIS_POSITIVO, HIGH);
+
+  // Freio
+  pinMode(FREIO_UM_POSITIVO, OUTPUT);
+  pinMode(FREIO_DOIS_POSITIVO, OUTPUT);
+  pinMode(FREIO_UM_NEGATIVO, OUTPUT);
+  pinMode(FREIO_DOIS_NEGATIVO, OUTPUT);
+  digitalWrite(FREIO_UM_NEGATIVO, LOW);
+  digitalWrite(FREIO_DOIS_NEGATIVO, LOW);
+
+  // Motores CC
+  pinMode(IN1, OUTPUT);
+  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
+}
+
+void ParaTras()
+{
+  // Acende o freio
+  digitalWrite(FREIO_UM_POSITIVO, HIGH);
+  digitalWrite(FREIO_DOIS_POSITIVO, HIGH);
+
+  // Desliga as setas (não necessariamente estavam ligadas)
+  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
+  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
+
+  // Motores para trás  
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+}
+
+void ParaFrente()
+{
+  // Desliga o freio (não necessariamente estava ligado)
+  digitalWrite(FREIO_UM_POSITIVO, LOW);
+  digitalWrite(FREIO_DOIS_POSITIVO, LOW);  
+
+  // Desliga as setas (não necessariamente estavam ligadas)
+  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
+  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
+
+  // Motores para frente 
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+}
+
+void ParaDireita()
+{
+  // Desliga o freio (não necessariamente estava ligado, mas é uma preucaução)
+  digitalWrite(FREIO_UM_POSITIVO, LOW);
+  digitalWrite(FREIO_DOIS_POSITIVO, LOW);
+
+  // Liga o LED direito e desliga o esquerdo
+  digitalWrite(SETA_DIREITA_POSITIVO, HIGH);
+  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
+
+  // Motor esquerdo para frente
+  digitalWrite(IN1, HIGH);
+  digitalWrite(IN2, LOW);
+
+  // Motor direito para trás
+  digitalWrite(IN3, HIGH);
+  digitalWrite(IN4, LOW);
+  delay(1000);
+
+  // Motor esquerdo parado
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  // Motor direito parado
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void ParaEsquerda()
+{
+  // Desliga o freio (não necessariamente estava ligado, mas é uma preucaução)
+  digitalWrite(FREIO_UM_POSITIVO, LOW);
+  digitalWrite(FREIO_DOIS_POSITIVO, LOW);
+
+  // Liga o LED esquerdo e desliga o direito
+  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
+  digitalWrite(SETA_ESQUERDA_POSITIVO, HIGH);
+
+  // Motor esquerdo para trás
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, HIGH);
+  
+  // Motor direito para frente
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, HIGH);
+  delay(1000);
+
+  // Motor esquerdo parado
+  digitalWrite(IN1, LOW);
+  digitalWrite(IN2, LOW);
+  // Motor direito parado
+  digitalWrite(IN3, LOW);
+  digitalWrite(IN4, LOW);
+}
+
+void loop() {
+  ParaFrente();
+  delay(8000);
+  ParaDireita();
+  ParaEsquerda();
+  ParaTras();
+  delay(8000);
+}
