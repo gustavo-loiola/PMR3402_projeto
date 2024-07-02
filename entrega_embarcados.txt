@@ -1,157 +1,100 @@
-/*************************** LEDS ***************************/
-                                                          /**/ 
-#define SETA_ESQUERDA_POSITIVO 22                         /**/
-#define SETA_ESQUERDA_NEGATIVO 23                         /**/
-                                                          /**/
-#define SETA_DIREITA_POSITIVO 52                          /**/
-#define SETA_DIREITA_NEGATIVO 53                          /**/
-                                                          /**/
-#define FAROL_UM_POSITIVO     30                          /**/
-#define FAROL_UM_NEGATIVO     31                          /**/
-                                                          /**/
-#define FAROL_DOIS_POSITIVO   44                          /**/
-#define FAROL_DOIS_NEGATIVO   45                          /**/
-                                                          /**/
-#define FREIO_UM_POSITIVO 6                               /**/
-#define FREIO_UM_NEGATIVO 5                               /**/
-                                                          /**/
-#define FREIO_DOIS_POSITIVO A0                            /**/
-#define FREIO_DOIS_NEGATIVO A1                            /**/
-                                                          /**/
-/************************************************************/
+#include <Ultrasonic.h>
 
-#define IN1 8
-#define IN2 9
-#define IN3 10
-#define IN4 11
+/* Sensor ultrassônico */
+#define pino_trigger  52
+#define pino_echo     53
+Ultrasonic ultrasonic(pino_trigger, pino_echo);
+
+/* Motores DC */
+#define MotorA1       4
+#define MotorA2       5
+#define MotorB1       6
+#define MotorB2       7
+
+#define VELOCIDADE 127  // 50% da velocidade máxima
+
+enum Estado { PARADO, PARAFRENTE, DIREITA, ESQUERDA };
+Estado estadoAtual;
 
 void setup() {
-  // Setas  
-  pinMode(SETA_ESQUERDA_POSITIVO, OUTPUT);
-  pinMode(SETA_ESQUERDA_NEGATIVO, OUTPUT);
-  pinMode(SETA_DIREITA_POSITIVO, OUTPUT);
-  pinMode(SETA_DIREITA_NEGATIVO, OUTPUT);
-  digitalWrite(SETA_ESQUERDA_NEGATIVO, LOW);
-  digitalWrite(SETA_DIREITA_NEGATIVO, LOW);
-
-  // Farol
-  pinMode(FAROL_UM_POSITIVO, OUTPUT);
-  pinMode(FAROL_DOIS_POSITIVO, OUTPUT);
-  pinMode(FAROL_UM_NEGATIVO, OUTPUT);
-  pinMode(FAROL_DOIS_NEGATIVO, OUTPUT);
-  digitalWrite(FAROL_UM_NEGATIVO, LOW);
-  digitalWrite(FAROL_DOIS_NEGATIVO, LOW);
-  digitalWrite(FAROL_UM_POSITIVO, HIGH);
-  digitalWrite(FAROL_DOIS_POSITIVO, HIGH);
-
-  // Freio
-  pinMode(FREIO_UM_POSITIVO, OUTPUT);
-  pinMode(FREIO_DOIS_POSITIVO, OUTPUT);
-  pinMode(FREIO_UM_NEGATIVO, OUTPUT);
-  pinMode(FREIO_DOIS_NEGATIVO, OUTPUT);
-  digitalWrite(FREIO_UM_NEGATIVO, LOW);
-  digitalWrite(FREIO_DOIS_NEGATIVO, LOW);
-
-  // Motores CC
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
-  pinMode(IN3, OUTPUT);
-  pinMode(IN4, OUTPUT);
+  pinMode(MotorA1, OUTPUT);
+  pinMode(MotorA2, OUTPUT);
+  pinMode(MotorB1, OUTPUT);
+  pinMode(MotorB2, OUTPUT);
+  Serial.begin(9600);
+  estadoAtual = PARADO;
 }
 
-void ParaTras()
-{
-  // Acende o freio
-  digitalWrite(FREIO_UM_POSITIVO, HIGH);
-  digitalWrite(FREIO_DOIS_POSITIVO, HIGH);
-
-  // Desliga as setas (não necessariamente estavam ligadas)
-  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
-  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
-
-  // Motores para trás  
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
+void ParaFrente() {
+  analogWrite(MotorA1, VELOCIDADE);
+  analogWrite(MotorA2, 0);
+  analogWrite(MotorB1, 0);
+  analogWrite(MotorB2, VELOCIDADE);
 }
 
-void ParaFrente()
-{
-  // Desliga o freio (não necessariamente estava ligado)
-  digitalWrite(FREIO_UM_POSITIVO, LOW);
-  digitalWrite(FREIO_DOIS_POSITIVO, LOW);  
-
-  // Desliga as setas (não necessariamente estavam ligadas)
-  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
-  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
-
-  // Motores para frente 
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
+void Parado() {
+  analogWrite(MotorA1, 0);
+  analogWrite(MotorA2, 0);
+  analogWrite(MotorB1, 0);
+  analogWrite(MotorB2, 0);
 }
 
-void ParaDireita()
-{
-  // Desliga o freio (não necessariamente estava ligado, mas é uma preucaução)
-  digitalWrite(FREIO_UM_POSITIVO, LOW);
-  digitalWrite(FREIO_DOIS_POSITIVO, LOW);
-
-  // Liga o LED direito e desliga o esquerdo
-  digitalWrite(SETA_DIREITA_POSITIVO, HIGH);
-  digitalWrite(SETA_ESQUERDA_POSITIVO, LOW);
-
-  // Motor esquerdo para frente
-  digitalWrite(IN1, HIGH);
-  digitalWrite(IN2, LOW);
-
-  // Motor direito para trás
-  digitalWrite(IN3, HIGH);
-  digitalWrite(IN4, LOW);
-  delay(1000);
-
-  // Motor esquerdo parado
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  // Motor direito parado
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+void Direita() {
+  analogWrite(MotorA1, VELOCIDADE);
+  analogWrite(MotorA2, 0);
+  analogWrite(MotorB1, VELOCIDADE);
+  analogWrite(MotorB2, 0);
 }
 
-void ParaEsquerda()
-{
-  // Desliga o freio (não necessariamente estava ligado, mas é uma preucaução)
-  digitalWrite(FREIO_UM_POSITIVO, LOW);
-  digitalWrite(FREIO_DOIS_POSITIVO, LOW);
-
-  // Liga o LED esquerdo e desliga o direito
-  digitalWrite(SETA_DIREITA_POSITIVO, LOW);
-  digitalWrite(SETA_ESQUERDA_POSITIVO, HIGH);
-
-  // Motor esquerdo para trás
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, HIGH);
-  
-  // Motor direito para frente
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, HIGH);
-  delay(1000);
-
-  // Motor esquerdo parado
-  digitalWrite(IN1, LOW);
-  digitalWrite(IN2, LOW);
-  // Motor direito parado
-  digitalWrite(IN3, LOW);
-  digitalWrite(IN4, LOW);
+void Esquerda() {
+  analogWrite(MotorA1, 0);
+  analogWrite(MotorA2, VELOCIDADE);
+  analogWrite(MotorB1, 0);
+  analogWrite(MotorB2, VELOCIDADE);
 }
 
 void loop() {
-  ParaFrente();
-  delay(8000);
-  ParaDireita();
-  ParaEsquerda();
-  ParaTras();
-  delay(8000);
+  float cmMsec;
+  long microsec = ultrasonic.timing();
+  cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+  Serial.print("Distancia em cm: ");
+  Serial.print(cmMsec);
+  Serial.println();
+  delay(10);
+
+  switch (estadoAtual) {
+    case PARADO:
+      if (cmMsec >= 15) {
+        estadoAtual = PARAFRENTE;
+        ParaFrente();
+      }
+      break;
+
+    case PARAFRENTE:
+      if (cmMsec < 15) {
+        estadoAtual = (random(2) == 0) ? DIREITA : ESQUERDA;
+        if (estadoAtual == DIREITA) {
+          Direita();
+        } else {
+          Esquerda();
+        }
+        delay(500);  // Espera para o carrinho virar um pouco
+      }
+      break;
+
+    case DIREITA:
+    case ESQUERDA:
+      if (cmMsec >= 15) {
+        estadoAtual = PARAFRENTE;
+        ParaFrente();
+      } else {
+        microsec = ultrasonic.timing();
+        cmMsec = ultrasonic.convert(microsec, Ultrasonic::CM);
+        Serial.print("Distancia em cm: ");
+        Serial.print(cmMsec);
+        Serial.println();
+        delay(10);
+      }
+      break;
+  }
 }
